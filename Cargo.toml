@@ -1,0 +1,16 @@
+[package]
+name = "tictactoe"
+version = "0.1.0"
+authors = ["Mooninaut"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+text_io = "0.1.8"
+
+[profile.release]
+opt-level = 'z'  # Optimize for size.
+lto = true
+codegen-units = 1
+panic = 'abort'
