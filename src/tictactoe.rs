@@ -47,26 +47,30 @@ impl Tictactoe {
     }
 
     fn is_winning_reverse_diagonal(&self) -> Option<Player> {
-        self.is_winning(&mut self.board.diagonal_iterator(0, false))
+        self.is_winning(&mut self.board.diagonal_iterator(self.board.columns() -1, false))
     }
 
     fn detect_win(&self) -> Option<Player> {
-        let len = self.board.size();
+        let len = self.board.columns();
         for i in 0..len {
             if let Some(winner) = self.is_winning_row(i) {
+                println!("Winning row {}", i);
                 return Some(winner)
             }
 
             if let Some(winner) = self.is_winning_column(i) {
+                println!("Winning column {}", i);
                 return Some(winner)
             }
         }
 
         if let Some(winner) = self.is_winning_forward_diagonal() {
+            println!("Winning forward diagonal");
             return Some(winner)
         }
 
         if let Some(winner) = self.is_winning_reverse_diagonal() {
+            println!("Winning reverse diagonal");
             return Some(winner)
         }
 
@@ -74,9 +78,9 @@ impl Tictactoe {
     }
 
     fn detect_draw(&self) -> bool {
-        for column in 0..self.board.size() {
-            for row in 0..self.board.size() {
-                if let Square::Empty = self.board.get_square(column, row) {
+        for column in 0..self.board.columns() {
+            for row in 0..self.board.columns() {
+                if Some(Square::Empty) == self.board.get_square(column, row) {
                     return false
                 }
             }
@@ -98,15 +102,13 @@ impl Game for Tictactoe {
     }
 
     fn play(&mut self, player: Player, column: usize, row: usize) -> Result<GameStatus, GameError> {
-        if column >= self.board.size() || row >= self.board.size() {
-            return Err(GameError::OutOfBounds)
-        }
         match self.board.get_square(column, row) {
-            Square::Played(_) => Err(GameError::SquareNotEmpty),
-            Square::Empty => {
+            Some(Square::Played(_)) => Err(GameError::SquareNotEmpty),
+            Some(Square::Empty) => {
                 self.board.set_square(column, row, Square::Played(player));
                 Ok(self.get_status())
-            }
+            },
+            None => Err(GameError::OutOfBounds),
         }
 
     }

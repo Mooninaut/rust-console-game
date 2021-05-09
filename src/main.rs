@@ -3,6 +3,7 @@ use text_io::scan;
 mod board;
 mod game;
 mod tictactoe;
+mod connectn;
 
 use board::{
     Board,
@@ -10,6 +11,7 @@ use board::{
 };
 
 use tictactoe::Tictactoe;
+use connectn::ConnectN;
 
 use game::{
     Game,
@@ -17,14 +19,7 @@ use game::{
     GameStatus,
 };
 
-fn main() {
-    println!("Pick a game. 1: Tic-Tac-Toe."); //  2: Connect-4.
-    let game_choice: usize;
-    {
-    scan!("{}", game_choice);
-    assert_eq!(game_choice, 1);
-    }
-
+fn play_tic_tac_toe() {
     println!("Pick a board size: ");
     let board_size: usize;
     {
@@ -33,7 +28,22 @@ fn main() {
 
     let board = Board::new(board_size);
     let mut game = Tictactoe::new(board);
+    play(&mut game);
+}
 
+fn play_connect_n() {
+    println!("Pick a board size (width height): ");
+    let cols: usize;
+    let rows: usize;
+    {
+        scan!("{} {}", cols, rows);
+    }
+
+    let mut game = ConnectN::new(cols, rows, 4);
+    play(&mut game);
+}
+
+fn play(game: &mut dyn Game) {
     let mut player = Player::X;
     loop {
         print!("{}", game);
@@ -42,6 +52,7 @@ fn main() {
         let column: usize;
 
         scan!("{} {}", column, row);
+        println!("You played column {}, row {}", column, row);
 
         match game.play(player, column, row) {
             Ok(GameStatus::InProgress) => {
@@ -70,5 +81,19 @@ fn main() {
             Err(GameError::OutOfBounds) =>
                 println!("{}, {} is out of bounds. Choose again.", column, row)
         }
+    }
+}
+
+fn main() {
+    println!("Pick a game. 1: Tic-Tac-Toe. 2: ConnectN.");
+    let game_choice: usize;
+    {
+        scan!("{}", game_choice);
+    }
+
+    match game_choice {
+        1 => play_tic_tac_toe(),
+        2 => play_connect_n(),
+        _ => panic!("Invalid choice"),
     }
 }

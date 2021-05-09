@@ -1,3 +1,5 @@
+use std::fmt;
+
 use crate::board::{
     Player,
 };
@@ -15,7 +17,7 @@ pub enum GameError {
     OutOfBounds,
 }
 
-pub trait Game {
+pub trait Game : fmt::Display {
     fn get_status(&self) -> GameStatus;
     fn play(&mut self, player: Player, column: usize, row: usize) -> Result<GameStatus, GameError>;
     fn reset(&mut self);
