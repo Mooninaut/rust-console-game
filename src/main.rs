@@ -1,4 +1,5 @@
 use text_io::scan;
+use std::fmt;
 
 mod board;
 mod game;
@@ -43,18 +44,33 @@ fn play_connect_n() {
     play(&mut game);
 }
 
+fn get_input(length: usize) -> Vec<usize> {
+    let row: usize;
+    let column: usize;
+
+    match length {
+        2 => {
+            scan!("{} {}", column, row);
+            println!("You played column {}, row {}", column, row);
+            return vec![column, row];
+        }
+        1 => {
+            scan!("{}", column);
+            println!("You played column {}", column);
+            return vec![column];
+        }
+        _ => unimplemented!("Multidimensional games not supported.")
+    }
+}
+
 fn play(game: &mut dyn Game) {
     let mut player = Player::X;
+    let num_inputs = game.num_inputs();
     loop {
         print!("{}", game);
 
-        let row: usize;
-        let column: usize;
-
-        scan!("{} {}", column, row);
-        println!("You played column {}, row {}", column, row);
-
-        match game.play(player, column, row) {
+        let input = get_input(num_inputs);
+        match game.play(player, &input) {
             Ok(GameStatus::InProgress) => {
                 player = match player {
                     Player::X => Player::O,
@@ -77,11 +93,15 @@ fn play(game: &mut dyn Game) {
                 std::process::exit(0)
             },
             Err(GameError::SquareNotEmpty) =>
-                println!("{}, {} is already occupied. Choose again.", column, row),
+                println!("{} is already occupied. Choose again.", join(", ", input)),
             Err(GameError::OutOfBounds) =>
-                println!("{}, {} is out of bounds. Choose again.", column, row)
+                println!("{} is out of bounds. Choose again.", join(",", input)),
         }
     }
+}
+
+fn join<T: fmt::Display>(separator: &str, vec: Vec<T>) -> String {
+    vec.iter().map(T::to_string).collect::<Vec<String>>().join(separator)
 }
 
 fn main() {

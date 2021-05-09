@@ -101,7 +101,9 @@ impl Game for Tictactoe {
         }
     }
 
-    fn play(&mut self, player: Player, column: usize, row: usize) -> Result<GameStatus, GameError> {
+    fn play(&mut self, player: Player, input: &Vec<usize>) -> Result<GameStatus, GameError> {
+        let column = input[0];
+        let row = input[1];
         match self.board.get_square(column, row) {
             Some(Square::Played(_)) => Err(GameError::SquareNotEmpty),
             Some(Square::Empty) => {
@@ -115,6 +117,10 @@ impl Game for Tictactoe {
 
     fn reset(&mut self) {
         self.board.reset();
+    }
+
+    fn num_inputs(&self) -> usize {
+        return 2;
     }
 }
 

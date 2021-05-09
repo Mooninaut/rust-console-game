@@ -8,7 +8,6 @@ use crate::game::{
     GameError,
 };
 
-
 pub struct ConnectN {
     win_length: usize,
     board: Board,
@@ -47,7 +46,7 @@ impl ConnectN {
     }
 
     fn detect_win(&self) -> Option<Player> {
-        let mut diagonal_iterator_iterator = self.board.diagonal_iterator_iterator(self.win_length);
+        let mut diagonal_iterator_iterator = self.board.diagonal_iterator_iterator(self.win_length).unwrap();
 
         while let Some(mut diagonal_iterator) = diagonal_iterator_iterator.next() {
             if let Some(player) = self.detect_winning_line(&mut diagonal_iterator, self.win_length) {
@@ -75,7 +74,7 @@ impl ConnectN {
     fn play(&mut self, column: usize, player: Player) {
         let mut row = 0;
         while self.board.get_square(column, row) == Some(Square::Empty) {
-            println!("Checking row {}", row);
+            //println!("Checking row {}", row);
             row += 1;
         }
         row -= 1;
@@ -84,7 +83,14 @@ impl ConnectN {
     }
 
     fn detect_draw(&self) -> bool {
-        false //unimplemented!("detect_draw not yet implemented")
+        let mut row_iterator = self.board.row_iterator(0);
+        loop {
+            match row_iterator.next() {
+                None => return true,
+                Some(Square::Empty) => return false,
+                Some(Square::Played(_)) => (),
+            }
+        }
     }
 }
 
@@ -100,11 +106,13 @@ impl Game for ConnectN {
         }
     }
 
-    fn play(&mut self, player: Player, column: usize, row: usize) -> Result<GameStatus, GameError> {
-        if column >= self.board.columns() || row > 0 {
+    fn play(&mut self, player: Player, input: &Vec<usize>) -> Result<GameStatus, GameError> {
+        let column = input[0];
+        if column >= self.board.columns() {
             return Err(GameError::OutOfBounds)
         }
-        return match self.board.get_square(column, row) {
+
+        return match self.board.get_square(column, 0) {
             Some(Square::Played(_)) => Err(GameError::SquareNotEmpty),
             Some(Square::Empty) => {
                 self.play(column, player);
@@ -116,6 +124,10 @@ impl Game for ConnectN {
 
     fn reset(&mut self) {
         self.board.reset();
+    }
+
+    fn num_inputs(&self) -> usize {
+        return 1;
     }
 }
 

@@ -4,14 +4,14 @@ use crate::board::{
     Player,
 };
 
-#[derive(Copy, Clone, PartialEq, Eq)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum GameStatus {
     Won(Player),
     Drawn,
     InProgress,
 }
 
-#[derive(Copy, Clone, PartialEq, Eq)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum GameError {
     SquareNotEmpty,
     OutOfBounds,
@@ -19,6 +19,7 @@ pub enum GameError {
 
 pub trait Game : fmt::Display {
     fn get_status(&self) -> GameStatus;
-    fn play(&mut self, player: Player, column: usize, row: usize) -> Result<GameStatus, GameError>;
+    fn play(&mut self, player: Player, input: &Vec<usize>) -> Result<GameStatus, GameError>;
     fn reset(&mut self);
+    fn num_inputs(&self) -> usize;
 }
